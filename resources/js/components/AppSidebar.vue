@@ -26,7 +26,7 @@ const mainNavItems: NavItem[] = [
     },
 
     {
-        title: 'Menu',
+        title: 'Insert Ticket',
         href: menu(),
         icon: LayoutGrid,
     },
