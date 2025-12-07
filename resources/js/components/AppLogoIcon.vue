@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
 import helpdeskLogo from '@/../img/helpdesk_logo.jpg';
-
+import type { HTMLAttributes } from 'vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -15,7 +14,7 @@ defineProps<Props>();
 </script>
 
 <template>
-     <img
+    <img
         :src="helpdeskLogo"
         alt="helpdesk_logo"
         :class="className"

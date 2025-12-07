@@ -1,4 +1,4 @@
-import { InertiaLinkProps } from '@inertiajs/vue3';
+import type { InertiaLinkProps } from '@inertiajs/vue3';
 import type { LucideIcon } from 'lucide-vue-next';
 
 export interface Auth {
@@ -12,9 +12,10 @@ export interface BreadcrumbItem {
 
 export interface NavItem {
     title: string;
-    href: NonNullable<InertiaLinkProps['href']>;
+    href?: NonNullable<InertiaLinkProps['href']>; // Make href optional for parent dropdowns
     icon?: LucideIcon;
     isActive?: boolean;
+    children?: NavItem[]; // Add children for dropdowns
 }
 
 export type AppPageProps<
