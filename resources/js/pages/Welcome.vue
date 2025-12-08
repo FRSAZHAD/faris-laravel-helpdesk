@@ -28,7 +28,7 @@ const page = usePage();
                 Dashboard
             </Link>
 
-            <template v-else>
+            <!-- <template v-else>
                 <Link :href="login()" class="px-5 py-2 hover:underline">
                     Log in
                 </Link>
@@ -40,7 +40,7 @@ const page = usePage();
                 >
                     Register
                 </Link>
-            </template>
+            </template> -->
         </nav>
 
         <!-- Main Hero Section -->

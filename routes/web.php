@@ -15,6 +15,10 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('StaffManagement', function () {
+    return Inertia::render('admin/StaffManagement');
+})->middleware(['auth', 'verified'])->name('StaffManagement');
+
 Route::get('InsertTicket', function () {
     return Inertia::render('Ticket/InsertTicket');
 })->middleware(['auth', 'verified'])->name('InsertTicket');
