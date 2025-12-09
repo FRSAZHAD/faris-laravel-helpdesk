@@ -39,10 +39,6 @@ class TicketController extends Controller
             'ticket' => $ticket
         ], 201);
 
-        //not much coding yet so idk what to see really, you can make  status an enum
-        //hmm what else i think thats it. goodluck on your endeuvor
-        //ouh one more, actually nvm since tak byk contoh
-        //try do proper RBAC, then one each api like do check only allow if user have the roles
     }
 
     public function index()
