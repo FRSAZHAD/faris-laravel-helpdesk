@@ -6,7 +6,7 @@ import NavUser from '@/components/NavUser.vue';
 import { dashboard, InsertTicket, ListTickets, StaffManagement } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { UserCog, BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { List, Tag, SquareMenu, UserCog, BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
 
 import AppLogo from './AppLogo.vue';
 
@@ -25,15 +25,15 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: SquareMenu,
     },
 
     {
         title: 'Ticket',
         icon: LayoutGrid,
         children: [
-            { title: 'Insert Ticket', href: InsertTicket() },
-            { title: 'List Tickets', href: ListTickets() },
+            { title: 'Insert Ticket', href: InsertTicket(), icon: Tag },
+            { title: 'List Tickets', href: ListTickets(), icon: List },
         ],
     },
 

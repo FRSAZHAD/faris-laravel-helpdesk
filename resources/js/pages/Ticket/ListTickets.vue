@@ -5,21 +5,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, InsertTicket, TicketDetail } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { useQuery } from '@tanstack/vue-query';
-import axios from 'axios';
-import { h } from 'vue';  // <-- Add this import
+import { h } from 'vue';
 
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
-interface Ticket {
-    id: number;
-    title: string;
-    description: string;
-    category_id: number;
-    priority_id: number;
-    status: string;
-}
+import { useTickets } from '@/composables/useTickets';
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,17 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'List Tickets', href: '' },
 ];
 
-// Fetch tickets
-const fetchTickets = async (): Promise<Ticket[]> => {
-    const response = await axios.get('/api/tickets');
-    return response.data.tickets;
-};
-
-// Vue Query
-const { data: tickets, isLoading } = useQuery<Ticket[]>({
-    queryKey: ['tickets'],
-    queryFn: fetchTickets,
-});
+const { data: tickets, isLoading } = useTickets();
 </script>
 
 <template>

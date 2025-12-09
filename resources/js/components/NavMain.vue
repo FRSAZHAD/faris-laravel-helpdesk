@@ -78,24 +78,23 @@ function toggleDropdown(title: string) {
                         </svg>
                     </SidebarMenuButton>
 
-                    <!-- Dropdown Items -->
+                    <!-- Child items WITH ICONS -->
                     <SidebarMenu v-if="openDropdowns.includes(item.title)">
-                        <SidebarMenuItem
-                            v-for="child in item.children"
-                            :key="child.title"
-                        >
+                        <SidebarMenuItem v-for="child in item.children" :key="child.title">
                             <SidebarMenuButton
                                 as-child
                                 :is-active="urlIsActive(child.href, page.url)"
                                 class="pl-8"
                             >
-                                <Link :href="child.href">
+                                <Link :href="child.href" class="flex items-center gap-2">
+                                    <component v-if="child.icon" :is="child.icon" class="h-4 w-4" />
                                     <span>{{ child.title }}</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </template>
+
 
             </SidebarMenuItem>
         </SidebarMenu>
