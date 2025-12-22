@@ -1,18 +1,44 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
+import { dashboard, ListTickets } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-
+import { Head, router } from '@inertiajs/vue3';
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 
 // Create Ticket API fields
 const title = ref('');
 const description = ref('');
 const category_id = ref('');
 const priority_id = ref('');
+const staff_id = ref('');
 const message = ref('');
+
+const staffs = ref<any[]>([]);
+const selectedStaff = ref<string | null>(null);
+
+// Fetch staffs from the backend API
+const fetchStaffs = async () => {
+    try {
+        const response = await axios.get('/api/staff');
+
+        staffs.value = response.data.Staffs.map((staff: any) => ({
+            id: staff.id,
+            name: staff.name,
+        }));
+    } catch (error) {
+        console.log("Error fetching staffs:", error);
+    }
+};
+
+// Fetch staffs when the component is mounted
+onMounted(() => {
+    fetchStaffs();
+});
+
 
 // Create Ticket function
 const createTicket = async () => {
@@ -22,9 +48,12 @@ const createTicket = async () => {
             description: description.value,
             category_id: category_id.value,
             priority_id: priority_id.value,
+            staff_id: selectedStaff.value,
         });
 
         message.value = response.data.message;
+        // Redirect to ListTickets page after successful creation
+        router.visit(ListTickets().url);
     } catch (error) {
         console.log(error);
         message.value = 'Error creating ticket';
@@ -57,28 +86,38 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <h2 class="mb-4 text-xl font-semibold">Create Ticket</h2>
 
                 <div class="flex w-full flex-col gap-4">
-                    <input
+                    <InputText
                         v-model="title"
                         type="text"
                         placeholder="Ticket Title"
                         class="rounded border p-2"
                     />
 
-                    <textarea
+                    <Textarea
                         v-model="description"
                         placeholder="Description"
                         class="rounded border p-2"
                         rows="4"
-                    ></textarea>
+                    ></Textarea>
 
-                    <input
+                    <Dropdown 
+                        v-model="selectedStaff" 
+                        :options="staffs" 
+                        option-label="name" 
+                        option-value="id" 
+                        placeholder="Select a Staff" 
+                        filter
+                        class="w-full" 
+                    />
+
+                    <InputText
                         v-model="category_id"
                         type="text"
                         placeholder="Category ID"
                         class="rounded border p-2"
                     />
 
-                    <input
+                    <InputText
                         v-model="priority_id"
                         type="text"
                         placeholder="Priority ID"

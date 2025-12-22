@@ -12,6 +12,7 @@ class Ticket extends Model
         'description',
         'category_id',
         'priority_id',
+        'staff_id',
         'status',
     ];
 }

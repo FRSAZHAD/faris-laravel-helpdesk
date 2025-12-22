@@ -18,6 +18,7 @@ class TicketController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'category_id' => 'required|integer',
+            'staff_id' => 'required|integer',
             'priority_id' => 'required|integer',
         ]);
 
@@ -28,6 +29,7 @@ class TicketController extends Controller
             'user_id' => $request->user()->id,   // logged in user, i think this one can do like global interceptor, or like uhh i forgot, something like that yeah
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'staff_id' => $validated['staff_id'],
             'category_id' => $validated['category_id'],
             'priority_id' => $validated['priority_id'],
             'status' => 'open',

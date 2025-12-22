@@ -11,6 +11,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
 import { useStaff } from '@/composables/useStaff';
+import { useCategory } from '@/composables/useCategory';
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -19,6 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const { data: staff, isLoading } = useStaff();
+const { data: Category } = useCategory();
 </script>
 
 <template>
@@ -47,6 +49,25 @@ const { data: staff, isLoading } = useStaff();
                 <Column field="name" header="name" sortable class="text-left"/>
                 <Column field="email" header="email" sortable class="text-left" />
                 <Column field="role" header="role" sortable class="text-center" />
+            </DataTable>
+
+            <DataTable
+                v-if="!isLoading"
+                :value="Category"
+                responsiveLayout="scroll"
+                class="w-full shadow-sm border border-gray-200 rounded-lg"
+            >
+            
+            <div class="p-4 text-right">
+                <Link :href="InsertStaff()">
+                    <Button class="bg-blue-500 hover:bg-blue-700 text-white rounded px-4 py-2">
+                        Add New Category
+                    </Button>
+                </Link>
+            </div>
+                <!-- Table Columns -->
+                <Column field="id" header="ID" sortable class="text-center" />
+                <Column field="category" header="Category" sortable class="text-left"/>
             </DataTable>
 
             <!-- Skeleton loading -->

@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -16,9 +17,9 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('StaffManagement', function () {
-    return Inertia::render('admin/StaffManagement');
-})->middleware(['auth', 'verified'])->name('StaffManagement');
+Route::get('AdminManagement', function () {
+    return Inertia::render('admin/AdminManagement');
+})->middleware(['auth', 'verified'])->name('AdminManagement');
 
 Route::get('InsertTicket', function () {
     return Inertia::render('Ticket/InsertTicket');
@@ -36,5 +37,6 @@ Route::get('InsertStaff', function () {
     return Inertia::render('admin/InsertStaff');
 })->middleware(['auth', 'verified'])->name('InsertStaff');
 
+Route::get('/category', [CategoryController::class, 'index']);
 
 require __DIR__.'/settings.php';

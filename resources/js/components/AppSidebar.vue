@@ -3,7 +3,7 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 
-import { dashboard, InsertTicket, ListTickets, StaffManagement } from '@/routes';
+import { dashboard, InsertTicket, ListTickets, AdminManagement } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { List, Tag, SquareMenu, UserCog, BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
@@ -53,7 +53,7 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Admin',
-        href: StaffManagement(),
+        href: AdminManagement(),
         icon: UserCog,
     },
 ];

@@ -10,10 +10,7 @@ const page = usePage();
 </script>
 
 <template>
-    <Head title="Welcome">
-        <link rel="preconnect" href="https://rsms.me/" />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    </Head>
+    <Head title="Welcome"></Head>
 
     <div
         class="flex min-h-screen flex-col items-center justify-between bg-[#f8f9fa] p-8 dark:bg-[#0a0a0a]"
