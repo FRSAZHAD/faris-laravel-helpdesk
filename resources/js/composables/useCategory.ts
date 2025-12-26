@@ -1,7 +1,6 @@
 // resources/js/composables/useStaffs.ts
-import { ref } from 'vue';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import axios from 'axios';
-import { useQuery } from '@tanstack/vue-query';
 
 // Staff interface
 export interface Category {
@@ -18,6 +17,12 @@ export const fetchCategory = async (): Promise<Category[]> => {
     return response.data.Category;
 };
 
+// API: Create Category
+export const createCategoryApi = async (category: string) => {
+    const response = await axios.post('/api/category', { category });
+    return response.data;
+};
+
 // API: Fetch 1 Staff
 // export const fetchStaffById = async (id: number): Promise<Staff> => {
 //     const response = await axios.get(`/api/Staffs/${id}`);
@@ -29,6 +34,19 @@ export const useCategory = () => {
     return useQuery<Category[]>({
         queryKey: ['category'],
         queryFn: fetchCategory,
+    });
+};
+
+// Composable for create
+export const useCreateCategory = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: createCategoryApi,
+        onSuccess: () => {
+            // refresh category list after insert
+            queryClient.invalidateQueries({ queryKey: ['category'] });
+        },
     });
 };
 
