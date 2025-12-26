@@ -39,4 +39,8 @@ Route::get('InsertStaff', function () {
 
 Route::get('/category', [CategoryController::class, 'index']);
 
+Route::get('InsertCategory', function () {
+    return Inertia::render('admin/InsertCategory');
+})->middleware(['auth', 'verified'])->name('InsertCategory');
+
 require __DIR__.'/settings.php';
