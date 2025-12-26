@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/category', [CategoryController::class, 'index']);
     Route::post('/category', [CategoryController::class, 'store']);
+
+    Route::get('/dashboard', [TicketController::class, 'dashboard']);
+
 });

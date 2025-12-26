@@ -14,7 +14,7 @@ export interface Category {
 // API: Fetch all Staffs
 export const fetchCategory = async (): Promise<Category[]> => {
     const response = await axios.get('/api/category');
-    return response.data.Category;
+    return response.data.category; // ✅ FIX
 };
 
 // API: Create Category

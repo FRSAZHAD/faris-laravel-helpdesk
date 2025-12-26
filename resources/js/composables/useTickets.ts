@@ -11,6 +11,12 @@ export interface Staff {
     email?: string;
 }
 
+export interface category {
+    id: number;
+    user_id: number;
+    category: string;
+}
+
 export interface Ticket {
     id: number;
     title: string;
@@ -52,7 +58,7 @@ export interface UpdateTicketPayload {
     id: number;
     title: string;
     description: string;
-    category_id: number;
+    category_id: number | null;
     priority_id: number;
     staff_id: number | null;
     status: string;

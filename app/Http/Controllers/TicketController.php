@@ -45,8 +45,11 @@ class TicketController extends Controller
 
     public function index()
     {
-        $tickets = Ticket::latest()->get();
-        return response()->json(['tickets' => $tickets]);
+        $tickets = Ticket::with(['staff', 'category'])->latest()->get();
+
+        return response()->json([
+            'tickets' => $tickets
+        ]);
     }
 
     public function show($id)
@@ -57,7 +60,7 @@ class TicketController extends Controller
 
     public function showTicket($id)
     {
-        $ticket = Ticket::with('staff')->findOrFail($id);
+        $ticket = Ticket::with('staff', 'category')->findOrFail($id);
 
         return response()->json([
             'ticket' => $ticket
@@ -85,7 +88,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category_id' => 'required|integer',
+            'category_id' => 'required|exists:category,id',
             'priority_id' => 'required|integer',
             'staff_id' => 'required|exists:staff,id',
             'status' => 'required',
@@ -93,7 +96,7 @@ class TicketController extends Controller
 
         $ticket = Ticket::findOrFail($id);
         $ticket->update($validated);
-        $ticket->load('staff');
+        $ticket->load(['staff', 'category']);
 
         return response()->json([
             'message' => 'Ticket updated',
@@ -101,6 +104,17 @@ class TicketController extends Controller
         ]);
     }
 
+    public function dashboard()
+    {
+        return response()->json([
+            'totalTickets' => Ticket::count(),
+            'openTickets' => Ticket::where('status', 'Open')->count(),
+            'closedTickets' => Ticket::where('status', 'Closed')->count(),
+            'recentTickets' => Ticket::latest()
+                ->limit(5)
+                ->get(['id', 'title', 'status', 'created_at']),
+        ]);
+    }
     // public function updateTicket(Request $request, $id)
     // {
     //     $request->validate([

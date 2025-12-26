@@ -2,16 +2,12 @@
 /* ================================
  * Vue core
  * ================================ */
-import { ref } from 'vue';
-import { computed } from 'vue';
-import { watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 /* ================================
  * Inertia
  * ================================ */
-import { Head } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
-import { usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 
 /* ================================
  * Layouts
@@ -23,11 +19,13 @@ import AppLayout from '@/layouts/AppLayout.vue';
  * ================================ */
 import Button from '@/components/ui/button/Button.vue';
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue';
-import Card from '@/components/ui/card/Card.vue';
-import CardContent from '@/components/ui/card/CardContent.vue';
-import CardFooter from '@/components/ui/card/CardFooter.vue';
-import CardHeader from '@/components/ui/card/CardHeader.vue';
-import CardTitle from '@/components/ui/card/CardTitle.vue';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 /* ================================
  * PrimeVue components
@@ -40,16 +38,16 @@ import InputNumber from 'primevue/inputnumber';
 /* ================================
  * Composables
  * ================================ */
-import { useTicket } from '@/composables/useTickets';
-import { useStatusOptions } from '@/composables/useTickets';
-import { useUpdateTicket } from '@/composables/useTickets';
+import {useTicket,useStatusOptions,useUpdateTicket,
+} from '@/composables/useTickets';
 import { useStaff } from '@/composables/useStaff';
+import { useCategory } from '@/composables/useCategory';
+
 
 /* ================================
  * Routes & types
  * ================================ */
-import { dashboard } from '@/routes';
-import { ListTickets } from '@/routes';
+import { dashboard, ListTickets } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 
 /* ================================
@@ -66,7 +64,7 @@ const message = ref('');
 const form = ref({
     title: '',
     description: '',
-    category_id: 0,
+    category_id: null as number | null,
     priority_id: 0,
     staff_id: null as number | null,
     status: '',
@@ -77,6 +75,7 @@ const form = ref({
  * ================================ */
 const { data: ticket, isLoading } = useTicket(ticketId);
 const { data: staffs } = useStaff();
+const { data: category } = useCategory();
 const { data: statusOptions } = useStatusOptions();
 
 /* ================================
@@ -86,6 +85,13 @@ const staffOptions = computed(() =>
     staffs?.value?.map(staff => ({
         label: staff.name,
         value: staff.id,
+    })) ?? [],
+);
+
+const categoryOptions = computed(() =>
+    category?.value?.map(category => ({
+        label: category.category,
+        value: category.id,
     })) ?? [],
 );
 
@@ -208,12 +214,15 @@ const updateTicket = () => {
                 <!-- Category -->
                 <div>
                     <h4 class="font-bold">Category</h4>
-                    <InputNumber
+                    <Dropdown
                         v-if="!isLoading"
                         v-model="form.category_id"
+                        :options="categoryOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select category"
+                        filter
                         class="w-full"
-                        placeholder="Category ID"
-                        :useGrouping="false"
                     />
                     <Skeleton v-else class="h-4 w-full" />
                 </div>
