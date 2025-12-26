@@ -3,10 +3,23 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 
-import { dashboard, InsertTicket, ListTickets, AdminManagement } from '@/routes';
+import {
+    AdminManagement,
+    dashboard,
+    InsertTicket,
+    ListTickets,
+} from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { List, Tag, SquareMenu, UserCog, BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    List,
+    SquareMenu,
+    Tag,
+    UserCog,
+} from 'lucide-vue-next';
 
 import AppLogo from './AppLogo.vue';
 
@@ -36,8 +49,6 @@ const mainNavItems: NavItem[] = [
             { title: 'List Tickets', href: ListTickets(), icon: List },
         ],
     },
-
-    
 ];
 
 const footerNavItems: NavItem[] = [

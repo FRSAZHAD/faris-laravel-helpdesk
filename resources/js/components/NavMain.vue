@@ -34,7 +34,6 @@ function toggleDropdown(title: string) {
 
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-
                 <!-- No children → simple link -->
                 <template v-if="!item.children">
                     <SidebarMenuButton
@@ -63,7 +62,9 @@ function toggleDropdown(title: string) {
 
                         <svg
                             class="h-4 w-4 transition-transform duration-200"
-                            :class="{ 'rotate-90': openDropdowns.includes(item.title) }"
+                            :class="{
+                                'rotate-90': openDropdowns.includes(item.title),
+                            }"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -80,22 +81,30 @@ function toggleDropdown(title: string) {
 
                     <!-- Child items WITH ICONS -->
                     <SidebarMenu v-if="openDropdowns.includes(item.title)">
-                        <SidebarMenuItem v-for="child in item.children" :key="child.title">
+                        <SidebarMenuItem
+                            v-for="child in item.children"
+                            :key="child.title"
+                        >
                             <SidebarMenuButton
                                 as-child
                                 :is-active="urlIsActive(child.href, page.url)"
                                 class="pl-8"
                             >
-                                <Link :href="child.href" class="flex items-center gap-2">
-                                    <component v-if="child.icon" :is="child.icon" class="h-4 w-4" />
+                                <Link
+                                    :href="child.href"
+                                    class="flex items-center gap-2"
+                                >
+                                    <component
+                                        v-if="child.icon"
+                                        :is="child.icon"
+                                        class="h-4 w-4"
+                                    />
                                     <span>{{ child.title }}</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </template>
-
-
             </SidebarMenuItem>
         </SidebarMenu>
     </SidebarGroup>
