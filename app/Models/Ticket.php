@@ -12,6 +12,17 @@ class Ticket extends Model
         'description',
         'category_id',
         'priority_id',
+        'staff_id',
         'status',
     ];
+
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class, 'staff_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 }
