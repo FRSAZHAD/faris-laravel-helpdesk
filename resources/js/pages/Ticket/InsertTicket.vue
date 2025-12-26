@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import { useCategory } from '@/composables/useCategory';
+import { useStaff } from '@/composables/useStaff';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, ListTickets } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import axios from 'axios';
-import { ref,onMounted } from 'vue';
+import { computed, ref } from 'vue';
 
 // Create Ticket API fields
 const title = ref('');
@@ -17,28 +19,28 @@ const priority_id = ref('');
 const staff_id = ref('');
 const message = ref('');
 
-const staffs = ref<any[]>([]);
-const selectedStaff = ref<string | null>(null);
+const { data: staffData, isLoading, error } = useStaff();
+const { data: categoryData } = useCategory();
 
-// Fetch staffs from the backend API
-const fetchStaffs = async () => {
-    try {
-        const response = await axios.get('/api/staff');
-
-        staffs.value = response.data.Staffs.map((staff: any) => ({
+// ✅ Adapt data for PrimeVue Dropdown
+const staffs = computed(
+    () =>
+        staffData.value?.map((staff) => ({
             id: staff.id,
             name: staff.name,
-        }));
-    } catch (error) {
-        console.log("Error fetching staffs:", error);
-    }
-};
+        })) ?? [],
+);
 
-// Fetch staffs when the component is mounted
-onMounted(() => {
-    fetchStaffs();
-});
+const category = computed(
+    () =>
+        categoryData.value?.map((category) => ({
+            id: category.id,
+            category: category.category,
+        })) ?? [],
+);
 
+const selectedStaff = ref<number | null>(null);
+const selectedCategory = ref<number | null>(null);
 
 // Create Ticket function
 const createTicket = async () => {
@@ -46,7 +48,7 @@ const createTicket = async () => {
         const response = await axios.post('/api/tickets', {
             title: title.value,
             description: description.value,
-            category_id: category_id.value,
+            category_id: selectedCategory.value,
             priority_id: priority_id.value,
             staff_id: selectedStaff.value,
         });
@@ -100,21 +102,26 @@ const breadcrumbs: BreadcrumbItem[] = [
                         rows="4"
                     ></Textarea>
 
-                    <Dropdown 
-                        v-model="selectedStaff" 
-                        :options="staffs" 
-                        option-label="name" 
-                        option-value="id" 
-                        placeholder="Select a Staff" 
+                    <Dropdown
+                        v-model="selectedStaff"
+                        :options="staffs"
+                        option-label="name"
+                        option-value="id"
+                        placeholder="Select a Staff"
                         filter
-                        class="w-full" 
+                        :loading="isLoading"
+                        class="w-full"
                     />
 
-                    <InputText
-                        v-model="category_id"
-                        type="text"
-                        placeholder="Category ID"
-                        class="rounded border p-2"
+                    <Dropdown
+                        v-model="selectedCategory"
+                        :options="category"
+                        option-label="category"
+                        option-value="id"
+                        placeholder="Select a category"
+                        filter
+                        :loading="isLoading"
+                        class="w-full"
                     />
 
                     <InputText

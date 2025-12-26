@@ -15,4 +15,9 @@ class Ticket extends Model
         'staff_id',
         'status',
     ];
+
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class, 'staff_id');
+    }
 }

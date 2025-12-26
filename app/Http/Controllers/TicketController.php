@@ -45,23 +45,23 @@ class TicketController extends Controller
 
     public function index()
     {
-        $tickets = Ticket::all();
+        $tickets = Ticket::latest()->get();
         return response()->json(['tickets' => $tickets]);
     }
 
     public function show($id)
     {
-        $ticket = Ticket::findOrFail($id);
-
-        return Inertia::render('Ticket/TicketDetail', [
-            'ticket' => $ticket
-        ]);
+        
+        return Inertia::render('Ticket/TicketDetail');
     }
 
     public function showTicket($id)
     {
-        $ticket = Ticket::findOrFail($id);
-        return response()->json(['ticket' => $ticket]);
+        $ticket = Ticket::with('staff')->findOrFail($id);
+
+        return response()->json([
+            'ticket' => $ticket
+        ]);
     }
 
     public function getStatusOptions()
@@ -80,17 +80,61 @@ class TicketController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:Open,Closed,Cancelled,On-Hold'
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category_id' => 'required|integer',
+            'priority_id' => 'required|integer',
+            'staff_id' => 'required|exists:staff,id',
+            'status' => 'required',
         ]);
 
         $ticket = Ticket::findOrFail($id);
-        $ticket->status = $request->status;
-        $ticket->save();
+        $ticket->update($validated);
+        $ticket->load('staff');
 
-        return response()->json(['message' => 'Status updated', 'ticket' => $ticket],201);
+        return response()->json([
+            'message' => 'Ticket updated',
+            'ticket' => $ticket,
+        ]);
     }
+
+    // public function updateTicket(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'status' => 'required|in:Open,Closed,Cancelled,On-Hold'
+    //     ]);
+
+    //     $ticket = Ticket::findOrFail($id);
+    //     $ticket->status = $request->status;
+    //     $ticket->save();
+
+    //     $ticket->load('staff');
+
+    //     return response()->json([
+    //         'message' => 'updated',
+    //         'ticket' => $ticket
+    //     ]);
+    // }
+
+    // public function updateStaff(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'staff_id' => 'required|exists:staff,id',
+    //     ]);
+
+    //     $ticket = Ticket::findOrFail($id);
+    //     $ticket->staff_id = $request->staff_id;
+    //     $ticket->save();
+
+    //     $ticket->load('staff');
+
+    //     return response()->json([
+    //         'message' => 'Staff updated',
+    //         'ticket' => $ticket,
+    //     ]);
+    // }
 
 }
