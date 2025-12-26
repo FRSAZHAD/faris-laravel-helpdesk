@@ -44,7 +44,7 @@ class StaffController extends Controller
 
     public function index()
     {
-        $Staffs = Staff::all();
+        $Staffs = Staff::orderBy('name', 'asc')->get();
         return response()->json(['Staffs' => $Staffs]);
     }
 
