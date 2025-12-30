@@ -28,6 +28,18 @@ import { useDashboard } from '@/composables/useDashboard';
  * Fetch dashboard data
  * ================================ */
 const { data, isLoading } = useDashboard();
+const normalizeStatus = (status: string) =>
+    status?.toUpperCase().replace('-', ' ');
+const statusClassMap: Record<string, string> = {
+    OPEN: 'bg-blue-300 text-blue-700',
+    'ON HOLD': 'bg-yellow-300 text-yellow-700',
+    CANCELLED: 'bg-gray-300 text-gray-700',
+    CLOSED: 'bg-green-300 text-green-700',
+};
+
+const getStatusClass = (status: string) =>
+    statusClassMap[normalizeStatus(status)] ??
+    'bg-gray-100 text-gray-700';
 
 /* ================================
  * Breadcrumbs
@@ -91,23 +103,35 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <!-- DataTable -->
                 <DataTable
+                    v-else
                     :value="data?.recentTickets"
                     size="small"
                     stripedRows
                     class="w-full"
                 >
-                    <Column field="title" style="width: 70%" />
+                    <Column
+                        field="title"
+                        header="Title"
+                        style="width: 70%"
+                    />
 
-                    <Column field="status" style="width: 30%">
+                    <Column
+                        field="status"
+                        header="Status"
+                        style="width: 30%"
+                    >
                         <template #body="{ data }">
-                            <span class="text-xs text-gray-400">
-                                {{ data.status }}
+                            <span
+                                class="rounded px-2 py-1 text-xs font-medium"
+                                :class="getStatusClass(data.status)"
+                            >
+                                {{ normalizeStatus(data.status) }}
                             </span>
                         </template>
                     </Column>
                 </DataTable>
-
             </div>
+
 
 
         </div>

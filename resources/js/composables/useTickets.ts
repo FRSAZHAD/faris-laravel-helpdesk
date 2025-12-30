@@ -26,6 +26,16 @@ export interface Ticket {
     staff_id: number;
     status: string;
     staff: Staff | null;
+
+    histories?: TicketHistory[];
+}
+export interface TicketHistory { 
+    id: number;
+    ticket_id: number;
+    description: string;
+    status: string;
+    attachment?: string | null;
+    created_at: string;
 }
 
 /* =======================
@@ -111,3 +121,34 @@ export const useUpdateTicket = () => {
         },
     });
 };
+
+export interface CreateTicketHistoryPayload {
+    ticket_id: number;
+    description: string;
+    status: string;
+    attachment?: string | null;
+}
+
+export const createTicketHistory = async ({
+    ticket_id,
+    ...data
+}: CreateTicketHistoryPayload) => {
+    const response = await axios.post(
+        `/api/tickets/${ticket_id}/histories`,
+        data
+    );
+    return response.data;
+};
+
+export function useCreateTicketHistory() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: createTicketHistory,
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: ['ticket', variables.ticket_id],
+            });
+        },
+    });
+}
