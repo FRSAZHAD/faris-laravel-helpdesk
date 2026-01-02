@@ -183,6 +183,8 @@ const startAddHistory = () => {
     localHistories.value.unshift({
         id: 'new',
         description: '',
+        staff_id: form.value.staff_id,
+        category_id: form.value.category_id,
         status: form.value.status || 'OPEN',
         attachment: null,
         created_at: new Date().toISOString(),
@@ -197,19 +199,15 @@ const confirmAddHistory = (row: any) => {
         {
             ticket_id: ticket.value.id,
             description: row.description,
+            staff_id: row.staff_id,
+            category_id: row.category_id,
             status: row.status,
             attachment: row.attachment ?? null,
         },
         {
             onSuccess: () => {
-                // ✅ same idea as updateTicket
-                // just clean UI state
-                localHistories.value = localHistories.value.filter(
-                    h => h !== row
-                );
-            },
-            onError: () => {
-                console.error('Failed to add history');
+                // 🔥 IMPORTANT
+                localHistories.value = [];
             },
         }
     );
@@ -230,13 +228,13 @@ const cancelAddHistory = () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-4">
             <div class="p-4 text-right">
-                <Button
+                <!-- <Button
                     class="bg-blue-500"
                     :disabled="isPending"
                     @click="updateTicket"
                 >
                     {{ isPending ? 'Saving...' : 'Save Changes' }}
-                </Button>
+                </Button> -->
             </div>
 
             <Card v-if="ticket">
@@ -366,6 +364,11 @@ const cancelAddHistory = () => {
                 v-if="!isHistoryLoading"
                 :value="histories"
                 responsiveLayout="scroll"
+                paginator
+                :rows="5"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                 class="w-full"
             >
                 <!-- # -->
@@ -386,6 +389,42 @@ const cancelAddHistory = () => {
                         />
                         <span v-else>
                             {{ data.description }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column header="Staff">
+                    <template #body="{ data }">
+                        <Dropdown
+                            v-if="data.__isNew"
+                            v-model="data.staff_id"
+                            :options="staffOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            class="w-full"
+                            placeholder="Select staff"
+                        />
+
+                        <span v-else>
+                            {{ data.staff?.name ?? '-' }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column header="Category">
+                    <template #body="{ data }">
+                        <Dropdown
+                            v-if="data.__isNew"
+                            v-model="data.category_id"
+                            :options="categoryOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            class="w-full"
+                            placeholder="Select category"
+                        />
+
+                        <span v-else>
+                            {{ data.category?.category ?? '-' }}
                         </span>
                     </template>
                 </Column>

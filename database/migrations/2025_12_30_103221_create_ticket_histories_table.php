@@ -19,6 +19,8 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->text('description');
+            $table->foreignId('staff_id')->nullable()->constrained('staff');
+            $table->foreignId('category_id')->nullable()->constrained('category');
             $table->string('status');
             $table->string('attachment')->nullable();
 

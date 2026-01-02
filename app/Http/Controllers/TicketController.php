@@ -60,7 +60,7 @@ class TicketController extends Controller
 
     public function showTicket($id)
     {
-        $ticket = Ticket::with(['staff','category','histories' => fn ($q) => $q->latest(),
+        $ticket = Ticket::with(['staff','category','histories' => function ($q) {$q->latest()->with(['staff', 'category']);},
         ])->findOrFail($id);
 
         return response()->json([
@@ -128,29 +128,35 @@ class TicketController extends Controller
     {
         $validated = $request->validate([
             'description' => 'required|string',
+            'staff_id' => 'required|exists:staff,id',
+            'category_id' => 'required|exists:category,id',
             'status' => 'required|string',
             'attachment' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($ticket, $validated, $request, &$history) {
+        $history = DB::transaction(function () use ($ticket, $validated, $request) {
 
-            // 1️⃣ Create history
             $history = $ticket->histories()->create([
                 'description' => $validated['description'],
                 'status' => $validated['status'],
                 'attachment' => $validated['attachment'] ?? null,
+                'staff_id' => $validated['staff_id'],
+                'category_id' => $validated['category_id'],
                 'created_by' => $request->user()->id,
             ]);
 
-            // 2️⃣ Update ticket status
             $ticket->update([
                 'status' => $validated['status'],
+                'staff_id' => $validated['staff_id'],
+                'category_id' => $validated['category_id'],
             ]);
+
+            return $history;
         });
 
         return response()->json([
             'message' => 'History added and ticket status updated',
-            'history' => $history,
+            'history' => $history->load(['staff', 'category']),
         ], 201);
     }
     // public function updateTicket(Request $request, $id)

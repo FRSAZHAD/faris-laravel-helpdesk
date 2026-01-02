@@ -29,12 +29,19 @@ export interface Ticket {
 
     histories?: TicketHistory[];
 }
-export interface TicketHistory { 
+export interface TicketHistory {
     id: number;
     ticket_id: number;
     description: string;
     status: string;
     attachment?: string | null;
+
+    staff_id?: number | null;
+    category_id?: number | null;
+
+    staff?: Staff | null;
+    category?: category | null;
+
     created_at: string;
 }
 
@@ -127,6 +134,9 @@ export interface CreateTicketHistoryPayload {
     description: string;
     status: string;
     attachment?: string | null;
+
+    staff_id?: number;
+    category_id?: number;
 }
 
 export const createTicketHistory = async ({
