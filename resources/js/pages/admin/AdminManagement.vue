@@ -33,6 +33,11 @@ const { data: Category } = useCategory();
                 v-if="!isLoading"
                 :value="staff"
                 responsiveLayout="scroll"
+                paginator
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                 class="w-full rounded-lg border border-gray-200 shadow-sm"
             >
                 <div class="p-4 text-right">
@@ -69,6 +74,11 @@ const { data: Category } = useCategory();
             <DataTable
                 v-if="!isLoading"
                 :value="Category"
+                paginator
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                 responsiveLayout="scroll"
                 class="w-full rounded-lg border border-gray-200 shadow-sm"
             >

@@ -43,6 +43,11 @@ const { data: tickets, isLoading } = useTickets();
                 v-if="!isLoading"
                 :value="tickets"
                 responsiveLayout="scroll"
+                paginator
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                 class="w-full rounded-lg border border-gray-200 shadow-sm"
             >
                 <!-- Table Columns -->
