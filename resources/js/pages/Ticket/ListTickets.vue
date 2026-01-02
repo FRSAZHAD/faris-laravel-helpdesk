@@ -5,17 +5,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, InsertTicket, TicketDetail } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { useQuery } from '@tanstack/vue-query';
-import axios from 'axios';
 
-interface Ticket {
-    id: number;
-    title: string;
-    description: string;
-    category_id: number;
-    priority_id: number;
-    status: string;
-}
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+
+import { useTickets } from '@/composables/useTickets';
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,17 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'List Tickets', href: '' },
 ];
 
-// Fetch tickets
-const fetchTickets = async (): Promise<Ticket[]> => {
-    const response = await axios.get('/api/tickets');
-    return response.data.tickets;
-};
-
-// Vue Query
-const { data: tickets, isLoading } = useQuery<Ticket[]>({
-    queryKey: ['tickets'],
-    queryFn: fetchTickets,
-});
+const { data: tickets, isLoading } = useTickets();
 </script>
 
 <template>
@@ -43,75 +27,81 @@ const { data: tickets, isLoading } = useQuery<Ticket[]>({
         <!-- Add Ticket Button -->
         <div class="p-4 text-right">
             <Link :href="InsertTicket()">
-                <Button class="bg-blue-500"> Add Ticket </Button>
+                <Button
+                    class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                >
+                    Add Ticket
+                </Button>
             </Link>
         </div>
 
-        <!-- Tickets Table -->
+        <!-- PrimeVue DataTable -->
         <div class="p-4">
             <h2 class="mb-4 text-xl font-semibold">Tickets List</h2>
 
-            <table class="w-full table-auto border-collapse">
-                <thead>
-                    <tr>
-                        <th class="border px-4 py-2">ID</th>
-                        <th class="border px-4 py-2">Title</th>
-                        <th class="border px-4 py-2">Description</th>
-                        <th class="border px-4 py-2">Category</th>
-                        <th class="border px-4 py-2">Priority</th>
-                        <th class="border px-4 py-2">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Skeleton rows while loading -->
-                    <template v-if="isLoading">
-                        <tr v-for="n in 5" :key="n">
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                            <td class="border px-4 py-2">
-                                <Skeleton class="h-4 w-full" />
-                            </td>
-                        </tr>
+            <DataTable
+                v-if="!isLoading"
+                :value="tickets"
+                responsiveLayout="scroll"
+                paginator
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+                class="w-full rounded-lg border border-gray-200 shadow-sm"
+            >
+                <!-- Table Columns -->
+                <Column header="#" class="text-center">
+                    <template #body="{ index }">
+                        {{ index + 1 }}
                     </template>
+                </Column>
 
-                    <!-- Real tickets -->
-                    <template v-else>
-                        <tr v-for="ticket in tickets" :key="ticket.id">
-                            <td class="border px-4 py-2">{{ ticket.id }}</td>
-                            <td class="border px-4 py-2">
-                                <Link :href="TicketDetail(ticket.id)">
-                                    {{ ticket.title }}
-                                </Link>
-                            </td>
-                            <td class="border px-4 py-2">
-                                {{ ticket.description }}
-                            </td>
-                            <td class="border px-4 py-2">
-                                {{ ticket.category_id }}
-                            </td>
-                            <td class="border px-4 py-2">
-                                {{ ticket.priority_id }}
-                            </td>
-                            <td class="border px-4 py-2">
-                                {{ ticket.status }}
-                            </td>
-                        </tr>
+                <!-- <Column field="id" header="Ticket ID" sortable class="text-center" /> -->
+                <Column field="title" header="Title" sortable class="text-left">
+                    <template #body="{ data }">
+                        <Link :href="TicketDetail(data.id)">
+                            {{ data.title }}
+                        </Link>
                     </template>
-                </tbody>
-            </table>
+                </Column>
+                <Column
+                    field="description"
+                    header="Description"
+                    sortable
+                    class="text-left"
+                />
+                <Column
+                    field="category_id"
+                    header="Category"
+                    sortable
+                    class="text-center"
+                />
+                <Column
+                    field="priority_id"
+                    header="Priority"
+                    sortable
+                    class="text-center"
+                />
+                <Column
+                    field="status"
+                    header="Status"
+                    sortable
+                    class="text-center"
+                />
+            </DataTable>
+
+            <!-- Skeleton loading -->
+            <div v-else>
+                <div v-for="n in 5" :key="n" class="mb-2 rounded border p-2">
+                    <Skeleton class="mb-1 h-4 w-full" />
+                    <Skeleton class="mb-1 h-4 w-full" />
+                    <Skeleton class="mb-1 h-4 w-full" />
+                    <Skeleton class="mb-1 h-4 w-full" />
+                    <Skeleton class="mb-1 h-4 w-full" />
+                    <Skeleton class="h-4 w-full" />
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>

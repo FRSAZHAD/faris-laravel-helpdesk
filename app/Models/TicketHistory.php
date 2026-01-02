@@ -4,17 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Ticket extends Model
+class TicketHistory extends Model
 {
     protected $fillable = [
-        'user_id',
-        'title',
+        'id',
+        'ticket_id',
         'description',
-        'category_id',
-        'priority_id',
         'staff_id',
+        'category_id',
         'status',
+        'attachment',
+        'created_by',
     ];
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
+    }
 
     public function staff()
     {
@@ -25,8 +30,4 @@ class Ticket extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    public function histories()
-{
-    return $this->hasMany(TicketHistory::class);
-}
 }

@@ -18,6 +18,7 @@ class TicketController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'category_id' => 'required|integer',
+            'staff_id' => 'required|integer',
             'priority_id' => 'required|integer',
         ]);
 
@@ -28,6 +29,7 @@ class TicketController extends Controller
             'user_id' => $request->user()->id,   // logged in user, i think this one can do like global interceptor, or like uhh i forgot, something like that yeah
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'staff_id' => $validated['staff_id'],
             'category_id' => $validated['category_id'],
             'priority_id' => $validated['priority_id'],
             'status' => 'open',
@@ -39,31 +41,31 @@ class TicketController extends Controller
             'ticket' => $ticket
         ], 201);
 
-        //not much coding yet so idk what to see really, you can make  status an enum
-        //hmm what else i think thats it. goodluck on your endeuvor
-        //ouh one more, actually nvm since tak byk contoh
-        //try do proper RBAC, then one each api like do check only allow if user have the roles
     }
 
     public function index()
     {
-        $tickets = Ticket::all();
-        return response()->json(['tickets' => $tickets]);
+        $tickets = Ticket::with(['staff', 'category'])->latest()->get();
+
+        return response()->json([
+            'tickets' => $tickets
+        ]);
     }
 
     public function show($id)
     {
-        $ticket = Ticket::findOrFail($id);
-
-        return Inertia::render('Ticket/TicketDetail', [
-            'ticket' => $ticket
-        ]);
+        
+        return Inertia::render('Ticket/TicketDetail');
     }
 
     public function showTicket($id)
     {
-        $ticket = Ticket::findOrFail($id);
-        return response()->json(['ticket' => $ticket]);
+        $ticket = Ticket::with(['staff','category','histories' => function ($q) {$q->latest()->with(['staff', 'category']);},
+        ])->findOrFail($id);
+
+        return response()->json([
+            'ticket' => $ticket
+        ]);
     }
 
     public function getStatusOptions()
@@ -82,17 +84,115 @@ class TicketController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:Open,Closed,Cancelled,On-Hold'
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category_id' => 'required|exists:category,id',
+            'priority_id' => 'required|integer',
+            'staff_id' => 'required|exists:staff,id',
+            'status' => 'required',
         ]);
 
         $ticket = Ticket::findOrFail($id);
-        $ticket->status = $request->status;
-        $ticket->save();
+        $ticket->update($validated);
+        $ticket->load(['staff', 'category']);
 
-        return response()->json(['message' => 'Status updated', 'ticket' => $ticket],201);
+        return response()->json([
+            'message' => 'Ticket updated',
+            'ticket' => $ticket,
+        ]);
     }
+
+    public function dashboard()
+    {
+        return response()->json([
+            'totalTickets' => Ticket::count(),
+            'openTickets' => Ticket::where('status', 'Open')->count(),
+            'closedTickets' => Ticket::where('status', 'Closed')->count(),
+            'recentTickets' => Ticket::latest()
+                ->limit(5)
+                ->get(['id', 'title', 'status', 'created_at']),
+        ]);
+    }
+
+    public function histories(Ticket $ticket)
+    {
+        return $ticket->histories()
+            ->latest()
+            ->get();
+    }
+
+    public function storeHistory(Request $request, Ticket $ticket)
+    {
+        $validated = $request->validate([
+            'description' => 'required|string',
+            'staff_id' => 'required|exists:staff,id',
+            'category_id' => 'required|exists:category,id',
+            'status' => 'required|string',
+            'attachment' => 'nullable|string',
+        ]);
+
+        $history = DB::transaction(function () use ($ticket, $validated, $request) {
+
+            $history = $ticket->histories()->create([
+                'description' => $validated['description'],
+                'status' => $validated['status'],
+                'attachment' => $validated['attachment'] ?? null,
+                'staff_id' => $validated['staff_id'],
+                'category_id' => $validated['category_id'],
+                'created_by' => $request->user()->id,
+            ]);
+
+            $ticket->update([
+                'status' => $validated['status'],
+                'staff_id' => $validated['staff_id'],
+                'category_id' => $validated['category_id'],
+            ]);
+
+            return $history;
+        });
+
+        return response()->json([
+            'message' => 'History added and ticket status updated',
+            'history' => $history->load(['staff', 'category']),
+        ], 201);
+    }
+    // public function updateTicket(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'status' => 'required|in:Open,Closed,Cancelled,On-Hold'
+    //     ]);
+
+    //     $ticket = Ticket::findOrFail($id);
+    //     $ticket->status = $request->status;
+    //     $ticket->save();
+
+    //     $ticket->load('staff');
+
+    //     return response()->json([
+    //         'message' => 'updated',
+    //         'ticket' => $ticket
+    //     ]);
+    // }
+
+    // public function updateStaff(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'staff_id' => 'required|exists:staff,id',
+    //     ]);
+
+    //     $ticket = Ticket::findOrFail($id);
+    //     $ticket->staff_id = $request->staff_id;
+    //     $ticket->save();
+
+    //     $ticket->load('staff');
+
+    //     return response()->json([
+    //         'message' => 'Staff updated',
+    //         'ticket' => $ticket,
+    //     ]);
+    // }
 
 }

@@ -1,8 +1,14 @@
 import '../css/app.css';
 
+// import "primevue/resources/themes/lara-light-blue/theme.css";
+// import "primevue/resources/primevue.min.css";
+// import "primeicons/primeicons.css";
+
 import { createInertiaApp } from '@inertiajs/vue3';
+import Aura from '@primeuix/themes/aura';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import PrimeVue from 'primevue/config';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { initializeTheme } from './composables/useAppearance';
@@ -19,7 +25,12 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(VueQueryPlugin) // <-- add this line
+            .use(VueQueryPlugin)
+            .use(PrimeVue, {
+                theme: {
+                    preset: Aura,
+                },
+            })
             .mount(el);
     },
     progress: {
@@ -27,5 +38,4 @@ createInertiaApp({
     },
 });
 
-// This will set light / dark mode on page load...
 initializeTheme();
