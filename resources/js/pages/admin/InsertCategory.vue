@@ -38,7 +38,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 
 <template>
-    <Head title="Menu" />
+    <Head title="Insert Category" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div

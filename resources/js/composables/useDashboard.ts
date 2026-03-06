@@ -4,6 +4,8 @@ import axios from 'axios';
 export interface DashboardData {
     totalTickets: number;
     openTickets: number;
+    onHoldTickets: number;
+    cancelledTickets: number;
     closedTickets: number;
     recentTickets: {
         id: number;

@@ -6,40 +6,57 @@ use Illuminate\Http\Request;
 use App\Models\Staff;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-
-
+use App\Services\HistoryLogService;
 
 class StaffController extends Controller
 {   
     public function store(Request $request)
     {
-        // validate input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:255',
             'role' => 'required|string|max:255',
         ]);
 
-        //should return/reject if validation failed
+        try {
 
-        // create ticket
-        $staff = Staff::create([
-            'user_id' => $request->user()->id,   // logged in user, i think this one can do like global interceptor, or like uhh i forgot, something like that yeah
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'role' => $validated['role'],
-        ]);
+            DB::beginTransaction();
 
-        // send response
-        return response()->json([
-            'message' => 'Staff Created Successfully',
-            'Staff' => $staff
-        ], 201);
+            $staff = Staff::create([
+                'user_id' => $request->user()->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
+            ]);
 
-    //     //not much coding yet so idk what to see really, you can make  status an enum
-    //     //hmm what else i think thats it. goodluck on your endeuvor
-    //     //ouh one more, actually nvm since tak byk contoh
-    //     //try do proper RBAC, then one each api like do check only allow if user have the roles
+            HistoryLogService::log(
+                $request->user()->id,
+                'Create Staff ' . $staff->name,
+                'Staff',
+                true,
+                $request->ip()
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Staff Created Successfully',
+                'staff' => $staff
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to create staff',
+                'error' => $e->getMessage() // remove in production
+            ], 500);
+        }
+        //     //not much coding yet so idk what to see really, you can make  status an enum
+        //     //hmm what else i think thats it. goodluck on your endeuvor
+        //     //ouh one more, actually nvm since tak byk contoh
+        //     //try do proper RBAC, then one each api like do check only allow if user have the roles
     }
 
     public function index()
@@ -63,6 +80,39 @@ class StaffController extends Controller
         }, explode(',', $matches[1]));
 
         return response()->json($roles);
+    }
+
+    public function destroy(Request $request, Staff $staff)
+    {
+        try {
+
+            DB::beginTransaction();
+
+            $staff->delete(); // soft delete (if SoftDeletes enabled)
+
+            HistoryLogService::log(
+                $request->user()->id,
+                'Delete Staff ' . $staff->name,
+                'Staff',
+                true,
+                request()->ip()
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Staff deleted successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to delete staff',
+                'error' => $e->getMessage() // remove in production
+            ], 500);
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import {
     dashboard,
     InsertTicket,
     ListTickets,
+    Report,
 } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -47,6 +48,7 @@ const mainNavItems: NavItem[] = [
         children: [
             { title: 'Insert Ticket', href: InsertTicket(), icon: Tag },
             { title: 'List Tickets', href: ListTickets(), icon: List },
+            { title: 'Ticket Report', href: Report() ,icon: BookOpen },
         ],
     },
 ];

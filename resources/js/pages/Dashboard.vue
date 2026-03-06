@@ -33,13 +33,13 @@ const normalizeStatus = (status: string) =>
 const statusClassMap: Record<string, string> = {
     OPEN: 'bg-blue-300 text-blue-700',
     'ON HOLD': 'bg-yellow-300 text-yellow-700',
-    CANCELLED: 'bg-gray-300 text-gray-700',
+    CANCELLED: 'bg-gray-300 text-muted-foreground-700',
     CLOSED: 'bg-green-300 text-green-700',
 };
 
 const getStatusClass = (status: string) =>
     statusClassMap[normalizeStatus(status)] ??
-    'bg-gray-100 text-gray-700';
+    'bg-gray-100 text-muted-foreground-700';
 
 /* ================================
  * Breadcrumbs
@@ -60,7 +60,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             ======================== -->
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <div class="rounded-xl border p-4">
-                    <p class="text-sm text-gray-500">Total Tickets</p>
+                    <p class="text-sm text-muted-foreground-500">Total Tickets</p>
                     <Skeleton v-if="isLoading" class="h-8 w-20 mt-2" />
                     <p v-else class="mt-2 text-2xl font-bold">
                         {{ data?.totalTickets }}
@@ -68,7 +68,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <div class="rounded-xl border p-4">
-                    <p class="text-sm text-gray-500">Open Tickets</p>
+                    <p class="text-sm text-muted-foreground-500">Open Tickets</p>
                     <Skeleton v-if="isLoading" class="h-8 w-20 mt-2" />
                     <p v-else class="mt-2 text-2xl font-bold">
                         {{ data?.openTickets }}
@@ -76,7 +76,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <div class="rounded-xl border p-4">
-                    <p class="text-sm text-gray-500">Closed Tickets</p>
+                    <p class="text-sm text-muted-foreground-500">Closed Tickets</p>
                     <Skeleton v-if="isLoading" class="h-8 w-20 mt-2" />
                     <p v-else class="mt-2 text-2xl font-bold">
                         {{ data?.closedTickets }}

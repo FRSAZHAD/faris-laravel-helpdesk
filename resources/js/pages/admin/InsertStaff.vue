@@ -53,7 +53,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 
 <template>
-    <Head title="Menu" />
+    <Head title="Insert Staff" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div

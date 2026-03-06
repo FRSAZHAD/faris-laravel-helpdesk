@@ -43,4 +43,8 @@ Route::get('InsertCategory', function () {
     return Inertia::render('admin/InsertCategory');
 })->middleware(['auth', 'verified'])->name('InsertCategory');
 
+Route::get('Report', function () {
+    return Inertia::render('Ticket/Report');
+})->middleware(['auth', 'verified'])->name('Report');
+
 require __DIR__.'/settings.php';

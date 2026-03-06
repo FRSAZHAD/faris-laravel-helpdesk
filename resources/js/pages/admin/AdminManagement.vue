@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue';
+import Button from 'primevue/button';
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, InsertCategory, InsertStaff } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-
+import 'primeicons/primeicons.css'
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
+import Dialog from 'primevue/dialog';
+import { ref } from 'vue';
 
-import { useCategory } from '@/composables/useCategory';
-import { useStaff } from '@/composables/useStaff';
+import { useCategory, useDeleteCategory } from '@/composables/useCategory';
+import { useStaff, useDeleteStaff } from '@/composables/useStaff';
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -20,10 +22,45 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const { data: staff, isLoading } = useStaff();
 const { data: Category } = useCategory();
+
+const deleteDialogVisible = ref(false);
+const selectedItem = ref<any>(null);
+const deleteType = ref<'staff' | 'category' | null>(null);
+
+const openDeleteDialog = (row: any, type: 'staff' | 'category') => {
+    selectedItem.value = row;
+    deleteType.value = type;
+    deleteDialogVisible.value = true;
+};
+
+const closeDeleteDialog = () => {
+    deleteDialogVisible.value = false;
+    selectedItem.value = null;
+    deleteType.value = null;
+};
+
+const { mutate: deleteStaff } = useDeleteStaff();
+const { mutate: deleteCategory } = useDeleteCategory();
+
+const handleDelete = () => {
+    if (!selectedItem.value || !deleteType.value) return;
+
+    const id = selectedItem.value.id;
+
+    if (deleteType.value === 'staff') {
+        deleteStaff(id);
+    } else if (deleteType.value === 'category') {
+        deleteCategory(id);
+    }
+
+    deleteDialogVisible.value = false;
+    selectedItem.value = null;
+    deleteType.value = null;
+};
 </script>
 
 <template>
-    <Head title="Staff List" />
+    <Head title="Admin Management" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- PrimeVue DataTable -->
@@ -69,6 +106,51 @@ const { data: Category } = useCategory();
                     sortable
                     class="text-center"
                 />
+                <Column header="Delete" class="text-center">
+                    <template #body="{ data }">
+                        <Button
+                            icon="pi pi-trash"
+                            severity="danger"
+                            text
+                            rounded
+                            @click="openDeleteDialog(data, 'staff')"
+                        />
+                    </template>
+                </Column>
+                <Dialog
+                    v-model:visible="deleteDialogVisible"
+                    header="Confirm Delete"
+                    modal
+                    :style="{ width: '400px' }"
+                >
+                    <div v-if="selectedItem">
+                        <p>
+                            Are you sure you want to delete
+                            <strong>
+                                {{
+                                    deleteType === 'staff'
+                                        ? selectedItem.name
+                                        : selectedItem.category
+                                }}
+                            </strong>
+                            ?
+                        </p>
+
+                        <div class="mt-4 flex justify-end gap-2">
+                            <Button
+                                label="Cancel"
+                                severity="secondary"
+                                text
+                                @click="closeDeleteDialog"
+                            />
+                            <Button
+                                label="Delete"
+                                severity="danger"
+                                @click="handleDelete"
+                            />
+                        </div>
+                    </div>
+                </Dialog>
             </DataTable>
 
             <DataTable
@@ -92,7 +174,7 @@ const { data: Category } = useCategory();
                     </Link>
                 </div>
                 <!-- Table Columns -->
-                 <Column header="#" class="text-center">
+                <Column header="#" class="text-center">
                     <template #body="{ index }">
                         {{ index + 1 }}
                     </template>
@@ -104,6 +186,51 @@ const { data: Category } = useCategory();
                     sortable
                     class="text-left"
                 />
+                <Column header="Delete" class="text-center">
+                    <template #body="slotProps">
+                        <Button
+                            icon="pi pi-trash"
+                            severity="danger"
+                            text
+                            rounded
+                            @click="openDeleteDialog(slotProps.data, 'category')"
+                        />
+                    </template>
+                </Column>
+                <Dialog
+                    v-model:visible="deleteDialogVisible"
+                    header="Confirm Delete"
+                    modal
+                    :style="{ width: '400px' }"
+                >
+                    <div v-if="selectedItem">
+                        <p>
+                            Are you sure you want to delete
+                            <strong>
+                                {{
+                                    deleteType === 'staff'
+                                        ? selectedItem.name
+                                        : selectedItem.category
+                                }}
+                            </strong>
+                            ?
+                        </p>
+
+                        <div class="mt-4 flex justify-end gap-2">
+                            <Button
+                                label="Cancel"
+                                severity="secondary"
+                                text
+                                @click="closeDeleteDialog"
+                            />
+                            <Button
+                                label="Delete"
+                                severity="danger"
+                                @click="handleDelete"
+                            />
+                        </div>
+                    </div>
+                </Dialog>
             </DataTable>
 
             <!-- Skeleton loading -->

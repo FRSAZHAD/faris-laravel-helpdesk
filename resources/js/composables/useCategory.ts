@@ -50,6 +50,22 @@ export const useCreateCategory = () => {
     });
 };
 
+export const deleteCategoryApi = async (id: number) => {
+    const response = await axios.delete(`/api/category/${id}`);
+    return response.data;
+};
+
+export const useDeleteCategory = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: deleteCategoryApi,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['category'] });
+        },
+    });
+};
+
 // Composable for detail
 // export const useStaff = (id: number) => {
 //     return useQuery<Staff>({

@@ -6,14 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-
-
+use App\Providers\RunningNumberService;
+use App\Services\HistoryLogService;
 
 class TicketController extends Controller
 {
     public function store(Request $request)
     {
-        // validate input
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -22,25 +21,47 @@ class TicketController extends Controller
             'priority_id' => 'required|integer',
         ]);
 
-        //should return/reject if validation failed
+        try {
 
-        // create ticket
-        $ticket = Ticket::create([
-            'user_id' => $request->user()->id,   // logged in user, i think this one can do like global interceptor, or like uhh i forgot, something like that yeah
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'staff_id' => $validated['staff_id'],
-            'category_id' => $validated['category_id'],
-            'priority_id' => $validated['priority_id'],
-            'status' => 'open',
-        ]);
+            DB::beginTransaction();
 
-        // send response
-        return response()->json([
-            'message' => 'Ticket created successfully',
-            'ticket' => $ticket
-        ], 201);
+            $ticketNo = RunningNumberService::generateTicketNo();
 
+            $ticket = Ticket::create([
+                'user_id' => $request->user()->id,
+                'ticket_id' => $ticketNo,
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'staff_id' => $validated['staff_id'],
+                'category_id' => $validated['category_id'],
+                'priority_id' => $validated['priority_id'],
+                'status' => 'open',
+            ]);
+
+            HistoryLogService::log(
+                $request->user()->id,
+                'Create Ticket #' . $ticket->ticket_id,
+                'Ticket',
+                true,
+                $request->ip()
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Ticket created successfully',
+                'ticket' => $ticket
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to create ticket',
+                'error' => $e->getMessage() // remove in production
+            ], 500);
+        }
     }
 
     public function index()
@@ -98,6 +119,14 @@ class TicketController extends Controller
         $ticket = Ticket::findOrFail($id);
         $ticket->update($validated);
         $ticket->load(['staff', 'category']);
+        
+        HistoryLogService::log(
+            $request->user()->id,
+            'Update Ticket #' . $ticket->ticket_id,
+            'Ticket',
+            true,
+            $request->ip()
+        );
 
         return response()->json([
             'message' => 'Ticket updated',
@@ -110,7 +139,9 @@ class TicketController extends Controller
         return response()->json([
             'totalTickets' => Ticket::count(),
             'openTickets' => Ticket::where('status', 'Open')->count(),
+            'onHoldTickets' => Ticket::where('status', 'On-Hold')->count(),
             'closedTickets' => Ticket::where('status', 'Closed')->count(),
+            'cancelledTickets' => Ticket::where('status', 'Cancelled')->count(),
             'recentTickets' => Ticket::latest()
                 ->limit(5)
                 ->get(['id', 'title', 'status', 'created_at']),
@@ -134,7 +165,9 @@ class TicketController extends Controller
             'attachment' => 'nullable|string',
         ]);
 
-        $history = DB::transaction(function () use ($ticket, $validated, $request) {
+        try {
+
+            DB::beginTransaction();
 
             $history = $ticket->histories()->create([
                 'description' => $validated['description'],
@@ -151,13 +184,30 @@ class TicketController extends Controller
                 'category_id' => $validated['category_id'],
             ]);
 
-            return $history;
-        });
+            HistoryLogService::log(
+                $request->user()->id,
+                'Update Ticket #' . $ticket->ticket_id . ' history',
+                'Ticket',
+                true,
+                $request->ip()
+            );
 
-        return response()->json([
-            'message' => 'History added and ticket status updated',
-            'history' => $history->load(['staff', 'category']),
-        ], 201);
+            DB::commit();
+
+            return response()->json([
+                'message' => 'History added and ticket status updated',
+                'history' => $history->load(['staff', 'category']),
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to add history',
+                'error' => $e->getMessage() // remove in production
+            ], 500);
+        }
     }
     // public function updateTicket(Request $request, $id)
     // {

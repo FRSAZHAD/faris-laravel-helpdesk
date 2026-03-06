@@ -5,11 +5,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, ListTickets } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import { computed, ref } from 'vue';
+import Button from 'primevue/button';
 
 // Create Ticket API fields
 const title = ref('');
@@ -56,9 +57,12 @@ const createTicket = async () => {
         message.value = response.data.message;
         // Redirect to ListTickets page after successful creation
         router.visit(ListTickets().url);
-    } catch (error) {
-        console.log(error);
-        message.value = 'Error creating ticket';
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            message.value = error.response?.data?.message ?? 'Server error';
+        } else {
+            message.value = 'Unexpected error occurred';
+        }
     }
 };
 
@@ -71,7 +75,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <Head title="Menu" />
+    <Head title="Insert Ticket" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -131,13 +135,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                         class="rounded border p-2"
                     />
 
-                    <button
+                    <Button
                         @click="createTicket"
                         class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                     >
                         Create Ticket
-                    </button>
-
+                    </Button>
                     <p class="font-semibold text-green-600">{{ message }}</p>
                 </div>
 

@@ -16,9 +16,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/staff', [StaffController::class, 'index']);
     Route::post('/staff', [StaffController::class, 'store']);
     Route::get('/roles', [StaffController::class, 'getRoles']);
+    Route::delete('/staff/{staff}', [StaffController::class, 'destroy']);
 
     Route::get('/category', [CategoryController::class, 'index']);
     Route::post('/category', [CategoryController::class, 'store']);
+    Route::delete('/category/{category}', [CategoryController::class, 'destroy']);
 
     Route::get('/dashboard', [TicketController::class, 'dashboard']);
     Route::get('/tickets/{ticket}/histories', [TicketController::class, 'histories']);

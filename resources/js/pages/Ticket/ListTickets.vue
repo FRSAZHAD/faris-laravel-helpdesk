@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue';
+import Button from 'primevue/button';
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard, InsertTicket, TicketDetail } from '@/routes';

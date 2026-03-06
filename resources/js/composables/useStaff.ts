@@ -88,3 +88,20 @@ export const useCreateStaff = () => {
 //         queryFn: () => fetchStaffById(id),
 //     });
 // };
+
+export const deleteStaffApi = async (id: number) => {
+    const response = await axios.delete(`/api/staff/${id}`);
+    return response.data;
+};
+
+export const useDeleteStaff = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: deleteStaffApi,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['staff'] });
+        },
+    });
+};
+

@@ -19,7 +19,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 /* ================================
  * UI components
  * ================================ */
-import Button from '@/components/ui/button/Button.vue';
+import Button from 'primevue/button';
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue';
 import {
     Card,
@@ -157,25 +157,26 @@ watch(ticket, (t) => {
 /* ================================
  * Actions
  * ================================ */
-const updateTicket = () => {
-    if (!ticket.value) return;
+// const updateTicket = () => {
+//     if (!ticket.value) return;
 
-    mutate(
-        {
-            id: ticket.value.id,
-            ...form.value,
-        },
-        {
-            onSuccess: (data) => {
-                message.value =
-                    data.message ?? 'Ticket updated successfully';
-            },
-            onError: () => {
-                message.value = 'Failed to update ticket';
-            },
-        },
-    );
-};
+//     mutate(
+//         {
+//             id: ticket.value.id,
+//             ...form.value,
+//         },
+//         {
+//             onSuccess: (data) => {
+//                 message.value =
+//                     data.message ?? 'Ticket updated successfully';
+//             },
+//             onError: () => {
+//                 message.value = 'Failed to update ticket';
+//             },
+//         },
+//     );
+// };
+// 🔥 IMPORTANT: This is not used anymore, history already at same time update the ticket.
 
 const startAddHistory = () => {
     if (localHistories.value.some(h => h.__isNew)) return;
@@ -205,8 +206,8 @@ const confirmAddHistory = (row: any) => {
             attachment: row.attachment ?? null,
         },
         {
-            onSuccess: () => {
-                // 🔥 IMPORTANT
+            onSuccess: (data) => {
+                message.value = data.message; // ✅ HERE
                 localHistories.value = [];
             },
         }
@@ -338,7 +339,7 @@ const cancelAddHistory = () => {
                     </div>
 
                     <!-- Message -->
-                    <p
+                    <!-- <p
                         v-if="message && !isLoading"
                         :class="[
                             'font-semibold md:col-span-2',
@@ -348,7 +349,7 @@ const cancelAddHistory = () => {
                         ]"
                     >
                         {{ message }}
-                    </p>
+                    </p> -->
                 </CardContent>
 
                 <CardFooter />
@@ -360,6 +361,9 @@ const cancelAddHistory = () => {
                 + Add
             </Button>
 
+            <p v-if="message" class="text-green-600">
+                {{ message }}
+            </p>
             <DataTable
                 v-if="!isHistoryLoading"
                 :value="histories"
@@ -381,7 +385,7 @@ const cancelAddHistory = () => {
                 <!-- Description -->
                 <Column field="description" header="Description">
                     <template #body="{ data }">
-                        <InputText
+                        <Textarea
                             v-if="data.__isNew"
                             v-model="data.description"
                             class="w-full"
@@ -477,6 +481,7 @@ const cancelAddHistory = () => {
                                 size="sm"
                                 class="bg-gray-300 text-black"
                                 @click="cancelAddHistory"
+                                severity="danger"
                             >
                                 Cancel
                             </Button>
@@ -488,7 +493,7 @@ const cancelAddHistory = () => {
                     </template>
                 </Column>
             </DataTable>
-
+            
             <!-- Skeleton loading -->
             <div v-else>
                 <div v-for="n in 5" :key="n" class="mb-2 rounded border p-2">
